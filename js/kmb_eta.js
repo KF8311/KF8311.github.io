@@ -1,5 +1,16 @@
-
-
+function formatDateGMT8(date) {
+    const options = {
+        timeZone: 'Asia/Hong_Kong', // GMT+8 zone
+        hour12: false,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    };
+    return new Date(date).toLocaleString('en-GB', options);
+}
 const apiBaseURL =
     "https://data.etabus.gov.hk/v1/transport/kmb/eta/B002CEF0DBC568F5/91M/1";
 /*fetch(apiBaseURL)
@@ -9,6 +20,13 @@ const apiBaseURL =
 const HKUST_S = "B002CEF0DBC568F5"; // HKUST South
 const route = "91M";                // 91, 91M, 91P
 const serviceType = "1";           // Should be 1
+function calculateTimeDifference(etaTime, nowTime) {
+    const etaDate = new Date(etaTime);
+    const nowDate = new Date(nowTime);
+    const diffMs = etaDate.getTime() - nowDate.getTime();
+    const diffMinutes = Math.ceil(diffMs / (1000 * 60));
+    return diffMinutes;
+}
 async function fetchData(stopId, route) {
 
     try {
@@ -23,12 +41,44 @@ async function fetchData(stopId, route) {
         const data = await response.json();
 
         const outputEl = document.getElementById(route);
-        let outputText = "";
+        outputEl.innerHTML = "";
+        let busHtml = "";
+        if (!data.data || data.data.length === 0) {
+            // Special case: no buses at all
+            busHtml = `<div style="margin: 5px 0;">This bus service is not available.</div> `;
+            outputEl.insertAdjacentHTML('beforeend', busHtml);
+            return;
+        }
+        //let outputText = "";
         console.log("Fetched data:", data);
         data.data.forEach((bus, index) => {
-            outputText += `Bus ${index + 1} Data Timestamp: ${bus.eta}\n`;
+            //const now = new Date(nowISO); // Or you have date object
+
+            const etaDate = new Date(bus.eta);
+            const diffMin = calculateTimeDifference(bus.eta, bus.data_timestamp);
+            const nowFormatted = formatDateGMT8(bus.eta).substring(12, 17);
+            if (index === 0) {
+                busHtml = `<div style="margin: 5px 0; color: #FFFF00;">${nowFormatted} | ${diffMin} mins | `;
+            }
+            else {
+                busHtml = `<div style="margin: 5px 0;">${nowFormatted} | ${diffMin} mins | `;
+            }
+            //let busHtml = `<div style="margin: 5px 0;">${nowFormatted} | ${diffMin} mins | `;
+            if (bus.rmk_tc === "原定班次") {
+                if (index === 0) {
+                    busHtml += `<span style="color: #FFFF00">*</span>`;
+                }
+                else {
+                    busHtml += `<span style="color: white;">*</span>`;
+                }
+
+            }
+            busHtml += `</div>`;
+            outputEl.insertAdjacentHTML('beforeend', busHtml);
+            // ${index + 1}
         });
-        outputEl.innerText = outputText;
+
+
     }// works!
 
 
@@ -47,8 +97,10 @@ async function fetchData(stopId, route) {
         }
     });*/
 }
-fetchData(HKUST_S, "91");
-fetchData(HKUST_S, "91M");
+setInterval(fetchData(HKUST_S, "91"), 5000);
+setInterval(fetchData(HKUST_S, "91M"), 5000);
+setInterval(fetchData(HKUST_S, "91P"), 5000);
+
 /*
 { 
     "type": "ETA", 
