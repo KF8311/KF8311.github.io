@@ -78,7 +78,7 @@ async function kmb_fetchData(stopIds, route) {
             const nowFormatted = formatDateGMT8(bus.eta).substring(12, 17);
             if (diffMin >= 0) {
                 countBus++;
-                if (index === 0) {
+                if (countBus === 1) {
                     busHtml = `<div style="margin: 5px 0; color: #FFFF00;">${nowFormatted} | ${diffMin} mins | `;
                 }
                 else {
