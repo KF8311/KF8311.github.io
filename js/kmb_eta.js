@@ -23,6 +23,7 @@ const HKUST_N = ["3592A0182BF020C7", "B3E60EE895DBBF06", "C1AAFE0EB8BD89C7"]; //
 const HKUST_S = ["B002CEF0DBC568F5", "E9018F8A7E096544"]; // HKUST South
 const route = "91M";                // 91, 91M, 91P
 const SERVICE_TYPE = "1";           // Should be 1
+
 function calculateTimeDifference(etaTime, nowTime) {
     const etaDate = new Date(etaTime);
     const nowDate = new Date(nowTime);
