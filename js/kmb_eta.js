@@ -86,7 +86,7 @@ async function kmb_fetchData(stopIds, route) {
                 }
                 //let busHtml = `<div style="margin: 5px 0;">${nowFormatted} | ${diffMin} mins | `;
                 if (bus.rmk_tc === "原定班次") {
-                    if (index === 0) {
+                    if (countBus === 1) {
                         busHtml += `<span style="color: #FFFF00">*</span>`;
                     }
                     else {
